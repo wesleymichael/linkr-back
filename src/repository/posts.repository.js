@@ -39,3 +39,28 @@ export async function getPostsDB(userId){
         `, [userId]);
     return results;
 }
+
+export async function likeDB(postId, userId){
+    const results = await db.query(`
+    INSERT INTO likes ("userId", "postId")
+        SELECT $2, $1
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM likes
+            WHERE "userId" = $2 AND "postId" = $1
+        )
+    RETURNING *;
+    `, [postId, userId]);
+    return results;
+}
+
+export async function dislikeDB(postId, userId){
+    return await db.query(`
+        DELETE FROM likes
+            WHERE "userId" = $2 AND "postId" = $1;
+    `, [postId, userId]);
+}
+
+export async function getPostByIdDB(postId){
+    return await db.query(`SELECT * FROM posts WHERE id = $1;`, [postId]);
+}
