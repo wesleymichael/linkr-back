@@ -2,14 +2,17 @@ import { dislikeDB, getPostByIdDB, getPostsDB, insertPostDB, likeDB } from "../r
 import { tokenToUser } from "../utils/tokenToUser.js";
 import axios from 'axios'; 
 import cheerio from 'cheerio';
+import { insertNewHashtagsDB } from "../repository/hashtags.repository.js";
 
 export async function createPost(req, res){
     const {description, url} = req.body;
     const session = res.locals.session;
     const user = tokenToUser(session.token);
+    const filteredHashtags = description.match(/#\w+/g)?.map(v => v.replace('#', ''));
 
     try {
-        await insertPostDB(user.id, url, description);
+        const post = await insertPostDB(user.id, url, description);
+        if (filteredHashtags) await insertNewHashtagsDB(post.rows[0].id, filteredHashtags);
         return res.sendStatus(201);        
     } catch (error) {
         return res.status(500).send(error.message);
