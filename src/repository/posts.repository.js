@@ -64,3 +64,9 @@ export async function dislikeDB(postId, userId){
 export async function getPostByIdDB(postId){
     return await db.query(`SELECT * FROM posts WHERE id = $1;`, [postId]);
 }
+
+export async function getPostByUserIdDB(id){
+    return await db.query(
+        `SELECT * FROM posts WHERE "userId"=$1;`,[id]
+    )
+}

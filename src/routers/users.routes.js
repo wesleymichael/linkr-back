@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { searchUsers } from "../controllers/users.controllers.js";
+import { searchUsers, userById } from "../controllers/users.controllers.js";
 
 const usersRouter = Router()
 
-usersRouter.post("/search",searchUsers)
+usersRouter.post("/search", searchUsers)
+usersRouter.get("/user/:id", userById)
 
 export default usersRouter

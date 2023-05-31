@@ -1,6 +1,6 @@
 import { dislikeDB, getPostByIdDB, getPostsDB, insertPostDB, likeDB } from "../repository/posts.repository.js";
 import { tokenToUser } from "../utils/tokenToUser.js";
-import axios from 'axios';
+import axios from 'axios'; 
 import cheerio from 'cheerio';
 
 export async function createPost(req, res){
