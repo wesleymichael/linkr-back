@@ -8,7 +8,10 @@ export async function createPost(req, res){
     const {description, url} = req.body;
     const session = res.locals.session;
     const user = tokenToUser(session.token);
-    const filteredHashtags = description.match(/#\w+/g)?.map(v => v.replace('#', ''));
+    const filteredHashtags = description
+        .match(/#\w+/g)
+        ?.filter((value, index, array) => array.indexOf(value) === index)
+        .map(v => v.replace('#', ''));
 
     try {
         const post = await insertPostDB(user.id, url, description);
