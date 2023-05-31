@@ -4,6 +4,6 @@ import { getHashtagPosts, getTrendingTags } from "../controllers/hashtags.contro
 const hashtagsRouter = Router()
 
 hashtagsRouter.get("/trendingtags", getTrendingTags)
-hashtagsRouter.get("/hashtag/:hashtagId", getHashtagPosts)
+hashtagsRouter.get("/hashtag/:hashtag", getHashtagPosts)
 
 export default hashtagsRouter
