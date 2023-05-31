@@ -1,5 +1,7 @@
 import { dislikeDB, getPostByIdDB, getPostsDB, insertPostDB, likeDB } from "../repository/posts.repository.js";
 import { tokenToUser } from "../utils/tokenToUser.js";
+import axios from 'axios';
+import cheerio from 'cheerio';
 
 export async function createPost(req, res){
     const {description, url} = req.body;
@@ -58,4 +60,28 @@ export async function dislike(req, res){
     } catch (error) {
         return res.status(500).send(error.message);
     }    
+}
+
+export default async function getMetadata(req, res) {
+    const url = req.body.url;
+    try {
+    const response = await axios.get(url);
+    const html = response.data;
+    const $ = cheerio.load(html);
+
+    const title = $('head > title').text();
+    const description = $('meta[name="description"]').attr('content');
+    const imageUrl = $('meta[property="og:image"]').attr('content');
+
+    const metadata = {
+      title,
+      description,
+      imageUrl,
+    };
+
+    return res.send(metadata);
+  } catch (error) {
+    console.error('Erro ao obter metadados:', error);
+    return res.send([]);
+  }
 }
