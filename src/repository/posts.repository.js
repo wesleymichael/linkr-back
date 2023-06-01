@@ -66,8 +66,36 @@ export async function getPostByIdDB(postId){
     return await db.query(`SELECT * FROM posts WHERE id = $1;`, [postId]);
 }
 
-export async function getPostByUserIdDB(id){
-    return await db.query(
-        `SELECT * FROM posts WHERE "userId"=$1;`,[id]
-    )
+export async function getPostByUserIdDB(userId){
+    const results = await db.query(`
+        SELECT
+            u.username,
+            u.image,
+            json_build_object(
+                'id', p.id,
+                'url', p.url,
+                'description', p.description,
+                'createdAt', p."createdAt",
+                'likes', COUNT(l.id),
+                'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = $1)
+            ) AS post,
+            json_agg(h.hashtag) AS hashtags
+        FROM
+            users u
+            JOIN posts p ON u.id = p."userId"
+            LEFT JOIN likes l ON p.id = l."postId"
+            LEFT JOIN hashtags h ON p.id = h."postId"
+        WHERE
+            p."userId" = $1 
+        GROUP BY
+            u.username,
+            u.image,
+            p.id,
+            p.url,
+            p.description,
+            p."createdAt"
+        ORDER BY
+            p."createdAt" DESC;
+        `, [userId]);
+    return results;
 }

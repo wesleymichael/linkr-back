@@ -1,4 +1,4 @@
-import { getPostByUserIdDB } from "../repository/posts.repository.js";
+import { getPostByIdDB, getPostByUserIdDB, getPostsDB } from "../repository/posts.repository.js";
 import { getUsersByIdDB, searchUsersByNameDB } from "../repository/users.repository.js";
 
 export async function searchUsers(req, res) {
@@ -25,7 +25,6 @@ export async function userById(req, res) {
 
     try {
         const user = await getUsersByIdDB(id)
-        const posts = getPostByUserIdDB(id)
 
         if (user.rowCount === 0) {
             return res.sendStatus(404)
@@ -34,9 +33,9 @@ export async function userById(req, res) {
         delete user.rows[0].password
         delete user.rows[0].email
 
-        const userAndPosts = { user: user.rows[0], posts: posts.rows }
+        const posts = await getPostByUserIdDB(id)
 
-        res.send(userAndPosts);
+        res.send(posts.rows);
     } catch (error) {
         res.status(500).send(error.message);
     }
