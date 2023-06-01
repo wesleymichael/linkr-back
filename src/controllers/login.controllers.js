@@ -29,7 +29,7 @@ export async function signin(req, res) {
         delete user.rows[0].password
 
         const secretKey = process.env.JWT_SECRET
-        const token = jwt.sign(user.rows[0], "secretKey")
+        const token = jwt.sign(user.rows[0], secretKey)
 
         await db.query(`
             INSERT INTO sessions (token) 
