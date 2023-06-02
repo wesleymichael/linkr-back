@@ -69,7 +69,7 @@ export async function dislike(req, res){
     }    
 }
 
-export default async function getMetadata(req, res) {
+export async function getMetadata(req, res) {
     const url = req.body.url;
     try {
     const response = await axios.get(url);

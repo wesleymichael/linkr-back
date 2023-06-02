@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authValidation } from "../middlewares/authValidation.middleware.js";
-import getMetadata, { createPost, deletePost, dislike, getPosts, like } from "../controllers/posts.controllers.js";
+import { createPost, deletePost, dislike, getMetadata, getPosts, like } from "../controllers/posts.controllers.js";
 
 const postsRouter = Router();
 
@@ -10,6 +10,5 @@ postsRouter.post("/like/:postId", authValidation, like);
 postsRouter.delete("/dislike/:postId", authValidation, dislike);
 postsRouter.get("/metadata", getMetadata);
 postsRouter.delete("/delete/:postId", authValidation, deletePost);
-
 
 export default postsRouter;
