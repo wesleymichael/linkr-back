@@ -35,7 +35,7 @@ export async function userById(req, res) {
 
         const posts = await getPostByUserIdDB(id)
 
-        res.send(posts.rows);
+        res.send({ user: user.rows[0], posts: posts.rows });
     } catch (error) {
         res.status(500).send(error.message);
     }
