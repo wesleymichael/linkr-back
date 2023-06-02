@@ -19,14 +19,13 @@ export async function signup(req, res) {
 
 export async function signin(req, res) {
     try {
-        const { user } = res.locals.session;
-
+        const  user  = res.locals.session;
         const secretKey = process.env.JWT_SECRET
         const token = jwt.sign(user.rows[0], secretKey)
 
         await insertSessionDB(token);
 
-        const userData = {username: results.rows[0].username, img: results.rows[0].img }
+        const userData = {username: user.rows[0].username, img: user.rows[0].image }
 
         res.status(201).send({token, userData});
     } catch (err) {
