@@ -36,7 +36,7 @@ export async function signin(req, res) {
             VALUES ($1)
         ;`, [token])
 
-        res.sendStatus(200)
+        res.status(200).send(token)
     } catch (err) {
         res.status(500).send(err.message)
     }
