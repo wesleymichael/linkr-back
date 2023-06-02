@@ -3,6 +3,7 @@ import { tokenToUser } from "../utils/tokenToUser.js";
 import axios from 'axios'; 
 import cheerio from 'cheerio';
 import { insertNewHashtagsDB } from "../repository/hashtags.repository.js";
+import { db } from "../database/database.js";
 
 export async function createPost(req, res){
     const {description, url} = req.body;
@@ -90,4 +91,21 @@ export default async function getMetadata(req, res) {
     console.error('Erro ao obter metadados:', error);
     return res.send([]);
   }
+}
+
+export async function deletePost(req, res){
+    const { postId } = req.params;
+    const session = res.locals.session;
+    const user = tokenToUser(session.token);
+    try {        
+        const deleteResult = await db.query(`DELETE FROM posts WHERE id=$1 AND "userId"=$2`,[postId,user.id]);
+        if(!deleteResult.rowCount){
+            const postVerification = await getPostByIdDB(postId);
+            if(!postVerification.rowCount) return res.status(404).send("Postagem não encontrada!");
+            else return res.status(401).send("Esse post não é seu!");
+        } 
+        res.sendStatus(200);
+    } catch (error) {
+        return res.status(500).send(error.message);
+    }
 }
