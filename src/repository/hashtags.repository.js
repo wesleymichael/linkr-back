@@ -16,11 +16,7 @@ export function getTopHashtagsDB(){
     `);
 }
 
-export function getPostsByHashtagDB(params){
-    /*
-    A ROTA ESTÁ SEM VERIFICAÇÃO DE LIKES. Quando for adicionada autenticação,
-    recuperar o id do usuário aqui e utilizar no comando EXISTS().
-    */
+export function getPostsByHashtagDB(params, userId){
     const {hashtag} = params
     return db.query(`
     SELECT
@@ -32,7 +28,7 @@ export function getPostsByHashtagDB(params){
             'description', p.description,
             'createdAt', p."createdAt",
             'likes', COUNT(l.id),
-            'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = 1)
+            'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = $2)
         ) AS post,
         json_agg(h.hashtag) AS hashtags
     FROM
@@ -51,5 +47,5 @@ export function getPostsByHashtagDB(params){
     ORDER BY
         p."createdAt" DESC;
         `
-        ,[hashtag]);
+        ,[hashtag, userId]);
 }
