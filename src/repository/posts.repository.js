@@ -12,6 +12,7 @@ export async function insertPostDB(userId, url, description){
 export async function getPostsDB(userId){
     const results = await db.query(`
         SELECT
+            u.id,
             u.username,
             u.image,
             json_build_object(
@@ -29,6 +30,7 @@ export async function getPostsDB(userId){
             LEFT JOIN likes l ON p.id = l."postId"
             LEFT JOIN hashtags h ON p.id = h."postId"
         GROUP BY
+            u.id,
             u.username,
             u.image,
             p.id,
@@ -69,6 +71,7 @@ export async function getPostByIdDB(postId){
 export async function getPostByUserIdDB(userId){
     const results = await db.query(`
         SELECT
+            u.id,
             u.username,
             u.image,
             json_build_object(
@@ -88,6 +91,7 @@ export async function getPostByUserIdDB(userId){
         WHERE
             p."userId" = $1 
         GROUP BY
+            u.id,
             u.username,
             u.image,
             p.id,
