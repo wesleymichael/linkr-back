@@ -1,5 +1,6 @@
 import { getPostByUserIdDB } from "../repository/posts.repository.js";
 import { getUsersByIdDB, searchUsersByNameDB } from "../repository/users.repository.js";
+import { tokenToUser } from "../utils/tokenToUser.js";
 
 export async function searchUsers(req, res) {
 
@@ -24,6 +25,8 @@ export async function userById(req, res) {
     const { id } = req.params
 
     try {
+        const session = res.locals.session;
+        const userLiker = tokenToUser(session.token);
         const user = await getUsersByIdDB(id)
 
         if (user.rowCount === 0) {
@@ -33,7 +36,7 @@ export async function userById(req, res) {
         delete user.rows[0].password
         delete user.rows[0].email
 
-        const posts = await getPostByUserIdDB(id)
+        const posts = await getPostByUserIdDB(id,userLiker.id)
 
         res.send({ user: user.rows[0], posts: posts.rows });
     } catch (error) {
