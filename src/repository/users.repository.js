@@ -10,7 +10,7 @@ export async function insertUserDB(username, email, password, image){
 
 export function searchUsersByNameDB(name) {
     return db.query(
-        `SELECT * FROM users WHERE username LIKE $1;`,[`${name}%`]
+        `SELECT * FROM users WHERE username ILIKE $1 LIMIT 5;`,[`${name}%`]
     )
 }
 
