@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
-import { insertUserDB } from "../repository/users.repository.js"
-import { insertSessionDB } from "../repository/auth.repository.js"
+import jwt from "jsonwebtoken";
+import { insertUserDB } from "../repository/users.repository.js";
+import { insertSessionDB } from "../repository/auth.repository.js";
 
 export async function signup(req, res) {
     const { username, email, password, picture } = req.body
