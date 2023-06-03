@@ -38,7 +38,8 @@ export async function getPostsDB(userId){
             p.description,
             p."createdAt"
         ORDER BY
-            p."createdAt" DESC;
+            p."createdAt" DESC
+        LIMIT 20; 
         `, [userId]);
     return results;
 }
