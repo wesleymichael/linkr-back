@@ -68,7 +68,7 @@ export async function getPostByIdDB(postId){
     return await db.query(`SELECT * FROM posts WHERE id = $1;`, [postId]);
 }
 
-export async function getPostByUserIdDB(userId){
+export async function getPostByUserIdDB(userId, userLikerId){
     const results = await db.query(`
         SELECT
             u.id,
@@ -80,7 +80,7 @@ export async function getPostByUserIdDB(userId){
                 'description', p.description,
                 'createdAt', p."createdAt",
                 'likes', COUNT(l.id),
-                'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = $1)
+                'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = $2)
             ) AS post,
             json_agg(h.hashtag) AS hashtags
         FROM
@@ -100,6 +100,6 @@ export async function getPostByUserIdDB(userId){
             p."createdAt"
         ORDER BY
             p."createdAt" DESC;
-        `, [userId]);
+        `, [userId, userLikerId]);
     return results;
 }
