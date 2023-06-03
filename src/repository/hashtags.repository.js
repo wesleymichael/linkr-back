@@ -20,6 +20,7 @@ export function getPostsByHashtagDB(params, userId){
     const {hashtag} = params
     return db.query(`
     SELECT
+        u.id,
         u.username,
         u.image,
         json_build_object(
@@ -32,12 +33,13 @@ export function getPostsByHashtagDB(params, userId){
         ) AS post,
         json_agg(h.hashtag) AS hashtags
     FROM
-        users u 
+        users u
         JOIN posts p ON u.id = p."userId"
         LEFT JOIN likes l ON p.id = l."postId"
         LEFT JOIN hashtags h ON p.id = h."postId"        
         WHERE h.hashtag=$1
     GROUP BY
+        u.id,
         u.username,
         u.image,
         p.id,
