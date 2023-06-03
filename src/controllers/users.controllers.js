@@ -1,4 +1,4 @@
-import { getPostByIdDB, getPostByUserIdDB, getPostsDB } from "../repository/posts.repository.js";
+import { getPostByUserIdDB } from "../repository/posts.repository.js";
 import { getUsersByIdDB, searchUsersByNameDB } from "../repository/users.repository.js";
 
 export async function searchUsers(req, res) {
