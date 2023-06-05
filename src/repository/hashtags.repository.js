@@ -29,7 +29,12 @@ export function getPostsByHashtagDB(params, userId){
             'description', p.description,
             'createdAt', p."createdAt",
             'likes', COUNT(l.id),
-            'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = $2)
+            'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = $2),
+            'diffUser',(SELECT u.username FROM likes l
+                JOIN users u ON u.id=l."userId"
+                WHERE l."postId"=p.id AND "userId" <> $2
+                ORDER BY l."createdAt" DESC
+                LIMIT 1)
         ) AS post,
         json_agg(h.hashtag) AS hashtags
     FROM
