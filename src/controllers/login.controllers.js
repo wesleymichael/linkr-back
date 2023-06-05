@@ -20,7 +20,7 @@ export async function signup(req, res) {
 export async function signin(req, res) {
     try {
         const  user  = res.locals.session;
-        const secretKey = process.env.JWT_SECRET
+        const secretKey = "melhorgrupodetodos"
         const token = jwt.sign(user.rows[0], secretKey)
 
         await insertSessionDB(token);
