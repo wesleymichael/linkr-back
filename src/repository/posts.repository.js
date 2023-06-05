@@ -110,3 +110,17 @@ export async function getPostByUserIdDB(userId, userLikerId){
         `, [userId, userLikerId]);
     return results;
 }
+
+export async function deletePostById(params, userId){
+    const { postId } = params;
+    return await db.query(`DELETE FROM posts WHERE id=$1 AND "userId"=$2`,[postId,userId]);
+}
+
+export async function deleteHashtagsByPostId(params){
+    const { postId } = params;
+    return await db.query(`DELETE FROM hashtags WHERE "postId"=$1`,[postId]);
+}
+
+export async function updatePostById(description,postId){
+    return db.query(`UPDATE posts SET description=$1 WHERE id=$2`,[description,postId]);
+}
