@@ -21,14 +21,17 @@ export async function getPostsDB(userId){
                 'description', p.description,
                 'createdAt', p."createdAt",
                 'likes', COUNT(l.id),
-                'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = $1)
-            ) AS post,
-            json_agg(h.hashtag) AS hashtags
+                'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = $1),
+                'diffUser',(SELECT u.username FROM likes l
+                    JOIN users u ON u.id=l."userId"
+                    WHERE l."postId"=p.id AND "userId" <> $1
+                    ORDER BY l."createdAt" DESC
+                    LIMIT 1)
+            ) AS post
         FROM
             users u
             JOIN posts p ON u.id = p."userId"
             LEFT JOIN likes l ON p.id = l."postId"
-            LEFT JOIN hashtags h ON p.id = h."postId"
         GROUP BY
             u.id,
             u.username,
@@ -81,14 +84,17 @@ export async function getPostByUserIdDB(userId, userLikerId){
                 'description', p.description,
                 'createdAt', p."createdAt",
                 'likes', COUNT(l.id),
-                'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = $2)
-            ) AS post,
-            json_agg(h.hashtag) AS hashtags
+                'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = $2),
+                'diffUser',(SELECT u.username FROM likes l
+                    JOIN users u ON u.id=l."userId"
+                    WHERE l."postId"=p.id AND "userId" <> $2
+                    ORDER BY l."createdAt" DESC
+                    LIMIT 1)
+            ) AS post
         FROM
             users u
             JOIN posts p ON u.id = p."userId"
             LEFT JOIN likes l ON p.id = l."postId"
-            LEFT JOIN hashtags h ON p.id = h."postId"
         WHERE
             p."userId" = $1 
         GROUP BY
@@ -103,4 +109,18 @@ export async function getPostByUserIdDB(userId, userLikerId){
             p."createdAt" DESC;
         `, [userId, userLikerId]);
     return results;
+}
+
+export async function deletePostById(params, userId){
+    const { postId } = params;
+    return await db.query(`DELETE FROM posts WHERE id=$1 AND "userId"=$2`,[postId,userId]);
+}
+
+export async function deleteHashtagsByPostId(params){
+    const { postId } = params;
+    return await db.query(`DELETE FROM hashtags WHERE "postId"=$1`,[postId]);
+}
+
+export async function updatePostById(description,postId){
+    return db.query(`UPDATE posts SET description=$1 WHERE id=$2`,[description,postId]);
 }

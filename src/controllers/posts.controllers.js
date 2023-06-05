@@ -1,18 +1,16 @@
-import { dislikeDB, getPostByIdDB, getPostsDB, insertPostDB, likeDB } from "../repository/posts.repository.js";
+import { deleteHashtagsByPostId, deletePostById, dislikeDB, getPostByIdDB, getPostsDB, insertPostDB, likeDB, updatePostById } from "../repository/posts.repository.js";
 import { tokenToUser } from "../utils/tokenToUser.js";
 import axios from 'axios'; 
 import cheerio from 'cheerio';
 import { insertNewHashtagsDB } from "../repository/hashtags.repository.js";
 import { db } from "../database/database.js";
+import filterPostHashtags from "../utils/filterPostHashtags.js";
 
 export async function createPost(req, res){
     const {description, url} = req.body;
     const session = res.locals.session;
     const user = tokenToUser(session.token);
-    const filteredHashtags = description
-        .match(/#\w+/g)
-        ?.filter((value, index, array) => array.indexOf(value) === index)
-        .map(v => v.replace('#', ''));
+    const filteredHashtags = filterPostHashtags(description);      
 
     try {
         const post = await insertPostDB(user.id, url, description);
@@ -94,13 +92,12 @@ export async function getMetadata(req, res) {
 }
 
 export async function deletePost(req, res){
-    const { postId } = req.params;
     const session = res.locals.session;
     const user = tokenToUser(session.token);
     try {        
-        const deleteResult = await db.query(`DELETE FROM posts WHERE id=$1 AND "userId"=$2`,[postId,user.id]);
+        const deleteResult = await deletePostById(req.params,user.id);
         if(!deleteResult.rowCount){
-            const postVerification = await getPostByIdDB(postId);
+            const postVerification = await getPostByIdDB(req.params.postId);
             if(!postVerification.rowCount) return res.status(404).send("Postagem não encontrada!");
             else return res.status(401).send("Esse post não é seu!");
         } 
@@ -108,4 +105,24 @@ export async function deletePost(req, res){
     } catch (error) {
         return res.status(500).send(error.message);
     }
+}
+
+export async function editPost(req,res){
+    const { description } = req.body;
+    const { postId } = req.params;
+    const session = res.locals.session;
+    const user = tokenToUser(session.token);
+    try {
+        const postVerification = await getPostByIdDB(postId);
+        if(!postVerification.rowCount) return res.status(404).send("Postagem não encontrada!");
+        if(postVerification.rows[0].userId !== user.id) 
+            return res.status(401).send("Esse post não é seu!");
+        await deleteHashtagsByPostId(req.params);
+        await updatePostById(description, postId);
+        const newFilteredHashtags = filterPostHashtags(description);
+        if (newFilteredHashtags) await insertNewHashtagsDB(postId, newFilteredHashtags);
+        res.send("Post editado!");
+    } catch (error) {
+        return res.status(500).send(error.message);
+    }    
 }
