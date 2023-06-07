@@ -1,4 +1,4 @@
-import { deleteHashtagsByPostId, deletePostById, dislikeDB, getPostByIdDB, getPostsDB, insertPostDB, likeDB, updatePostById } from "../repository/posts.repository.js";
+import { deleteHashtagsByPostId, deletePostById, dislikeDB, getNewestPostsByTimestamp, getPostByIdDB, getPostsDB, insertPostDB, likeDB, updatePostById } from "../repository/posts.repository.js";
 import { tokenToUser } from "../utils/tokenToUser.js";
 import axios from 'axios'; 
 import cheerio from 'cheerio';
@@ -125,4 +125,14 @@ export async function editPost(req,res){
     } catch (error) {
         return res.status(500).send(error.message);
     }    
+}
+
+export async function checkNewPosts(req,res){
+    try {
+        const postsCount = await getNewestPostsByTimestamp(req.body);
+        res.send(postsCount.rows[0]);
+    } catch (error) {
+        return res.status(500).send(error.message);
+    }
+
 }
