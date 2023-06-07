@@ -20,9 +20,8 @@ export async function createPost(req, res){
 
 export async function getPosts(req, res){
     const user = res.locals.user;
-    
     try {
-        const results = await getPostsDB(user.id);
+        const results = await getPostsDB(user.id,req.query);
         return res.send(results.rows);
     } catch (error) {
         return res.status(500).send(error.message);

@@ -34,7 +34,7 @@ export async function userById(req, res) {
         delete user.rows[0].password
         delete user.rows[0].email
 
-        const posts = await getPostByUserIdDB(id,userLiker.id)
+        const posts = await getPostByUserIdDB(id,userLiker.id, req.query)
 
         res.send({ user: user.rows[0], posts: posts.rows });
     } catch (error) {
