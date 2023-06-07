@@ -124,3 +124,8 @@ export async function deleteHashtagsByPostId(params){
 export async function updatePostById(description,postId){
     return db.query(`UPDATE posts SET description=$1 WHERE id=$2`,[description,postId]);
 }
+
+export async function getNewestPostsByTimestamp(body){
+    const { lastCreatedAt } = body;
+    return db.query(`SELECT COUNT(*) FROM posts WHERE "createdAt" > $1;`,[lastCreatedAt]);
+}
