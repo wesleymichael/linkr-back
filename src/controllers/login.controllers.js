@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import { insertUserDB } from "../repository/users.repository.js";
-import { insertSessionDB } from "../repository/auth.repository.js";
 
 export async function signup(req, res) {
     const { username, email, password, picture } = req.body
@@ -21,9 +20,7 @@ export async function signin(req, res) {
     try {
         const  user  = res.locals.session;
         const secretKey = process.env.SECRET_KEY
-        const token = jwt.sign(user.rows[0], secretKey)
-
-        await insertSessionDB(token);
+        const token = jwt.sign(user.rows[0], secretKey, { expiresIn: '24h' })
 
         const userData = {username: user.rows[0].username, img: user.rows[0].image }
 

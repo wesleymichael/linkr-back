@@ -1,20 +1,20 @@
-import { getSessionDB } from "../repository/auth.repository.js";
+import { tokenToUser } from "../utils/tokenToUser.js";
 
-export async function authValidation(req, res, next){
-    const {authorization} = req.headers;
-    const token = authorization?.replace("Bearer ", "");
+export async function authValidation(req, res, next) {
+  const { authorization } = req.headers;
+  const token = authorization?.replace("Bearer ", "");
 
-    if(!token) return res.sendStatus(401);
+  if (!token) return res.sendStatus(401);
 
-    try {
-        const session = await getSessionDB(token);
-
-        if(session.rowCount === 0) return res.sendStatus(401);
-
-        res.locals.session = session.rows[0];
-        next();
-
-    } catch (error) {
-        return res.status(500).send(error.message);
-    }   
+  try {
+    const user = await tokenToUser(token);
+    res.locals.user = user;
+    next();
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .send("Seu token de verificação expirou. Realize o login novamente.");
+    } else return res.status(500).send(error.message);
+  }
 }
