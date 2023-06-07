@@ -1,15 +1,12 @@
 import { deleteHashtagsByPostId, deletePostById, dislikeDB, getNewestPostsByTimestamp, getPostByIdDB, getPostsDB, insertPostDB, likeDB, updatePostById } from "../repository/posts.repository.js";
-import { tokenToUser } from "../utils/tokenToUser.js";
 import axios from 'axios'; 
 import cheerio from 'cheerio';
 import { insertNewHashtagsDB } from "../repository/hashtags.repository.js";
-import { db } from "../database/database.js";
 import filterPostHashtags from "../utils/filterPostHashtags.js";
 
 export async function createPost(req, res){
     const {description, url} = req.body;
-    const session = res.locals.session;
-    const user = tokenToUser(session.token);
+    const user = res.locals.user;
     const filteredHashtags = filterPostHashtags(description);      
 
     try {
@@ -22,8 +19,7 @@ export async function createPost(req, res){
 }
 
 export async function getPosts(req, res){
-    const session = res.locals.session;
-    const user = tokenToUser(session.token);
+    const user = res.locals.user;
     
     try {
         const results = await getPostsDB(user.id);
@@ -35,8 +31,7 @@ export async function getPosts(req, res){
 
 export async function like(req, res){
     const { postId } = req.params;
-    const session = res.locals.session;
-    const user = tokenToUser(session.token);
+    const user = res.locals.user;
     
     try {
         const postResult = await getPostByIdDB(postId);
@@ -52,8 +47,7 @@ export async function like(req, res){
 
 export async function dislike(req, res){
     const { postId } = req.params;
-    const session = res.locals.session;
-    const user = tokenToUser(session.token);
+    const user = res.locals.user;
 
     try {
         const postResult = await getPostByIdDB(postId);
@@ -92,8 +86,7 @@ export async function getMetadata(req, res) {
 }
 
 export async function deletePost(req, res){
-    const session = res.locals.session;
-    const user = tokenToUser(session.token);
+    const user = res.locals.user;
     try {        
         const deleteResult = await deletePostById(req.params,user.id);
         if(!deleteResult.rowCount){
@@ -110,8 +103,7 @@ export async function deletePost(req, res){
 export async function editPost(req,res){
     const { description } = req.body;
     const { postId } = req.params;
-    const session = res.locals.session;
-    const user = tokenToUser(session.token);
+    const user = res.locals.user;
     try {
         const postVerification = await getPostByIdDB(postId);
         if(!postVerification.rowCount) return res.status(404).send("Postagem não encontrada!");
