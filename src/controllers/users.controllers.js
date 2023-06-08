@@ -8,20 +8,14 @@ export async function searchUsers(req, res) {
     try {
         const user = res.locals.user;
         const users = await searchUsersByNameDB(name)
-        const usersId = []
         const followers = []
 
         for (let i = 0; i < users.rowCount; i++) {
             delete users.rows[i].password
             delete users.rows[i].email
-
-            usersId.push(users.rows[i].id)
-        }
-
-        for (let i = 0; i < usersId.length; i++) {
-            const follow = await getUsersFollow(user.id, usersId[i])
+            const follow = await getUsersFollow(user.id, users.rows[i].id)
             if (follow.rows[0]) {
-                followers.push({ ...users.rows[i], follower: follow.rows[0].follow })
+                followers.push({ ...users.rows[i], follower: true })
             } else {
                 followers.push({ ...users.rows[i], follower: false })
             }
@@ -48,9 +42,11 @@ export async function userById(req, res) {
         delete user.rows[0].password
         delete user.rows[0].email
 
-        const posts = await getPostByUserIdDB(id,userLiker.id, req.query)
+        const posts = await getPostByUserIdDB(id, userLiker.id, req.query)
 
-        res.send({ user: user.rows[0], posts: posts.rows });
+        if (userLiker.id == id) return res.send({ user: user.rows[0], posts: posts.rows, isMe: true })
+
+        res.send({ user: user.rows[0], posts: posts.rows, isMe: false });
     } catch (error) {
         res.status(500).send(error.message);
     }

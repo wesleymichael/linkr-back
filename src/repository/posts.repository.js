@@ -1,17 +1,17 @@
 import { db } from "../database/database.js";
 
-export async function insertPostDB(userId, url, description){
+export async function insertPostDB(userId, url, description) {
     const results = db.query(`
         INSERT INTO "posts" ("userId", "url", "description") 
             VALUES ($1, $2, $3)
             RETURNING id;`
-    , [userId, url, description]);
+        , [userId, url, description]);
     return results;
 }
 
-export async function getPostsDB(userId, query){
+export async function getPostsDB(userId, query) {
     const firstPostReference = query.firstPost ? query.firstPost : "Infinity";
-    const pageOffset = query.page>0 ? ((query.page)-1)*10 : 0;
+    const pageOffset = query.page > 0 ? ((query.page) - 1) * 10 : 0;
     const results = await db.query(`
         SELECT
             u.id,
@@ -33,6 +33,7 @@ export async function getPostsDB(userId, query){
         FROM
             users u
             JOIN posts p ON u.id = p."userId"
+            JOIN followers f ON f."followUserId" = u.id
             LEFT JOIN likes l ON p.id = l."postId"
         WHERE
             p.id <= $2::float
@@ -48,11 +49,11 @@ export async function getPostsDB(userId, query){
             p."createdAt" DESC
         OFFSET $3
         LIMIT 10; 
-        `, [userId,firstPostReference,pageOffset]);
+        `, [userId, firstPostReference, pageOffset]);
     return results;
 }
 
-export async function likeDB(postId, userId){
+export async function likeDB(postId, userId) {
     const results = await db.query(`
     INSERT INTO likes ("userId", "postId")
         SELECT $2, $1
@@ -66,20 +67,20 @@ export async function likeDB(postId, userId){
     return results;
 }
 
-export async function dislikeDB(postId, userId){
+export async function dislikeDB(postId, userId) {
     return await db.query(`
         DELETE FROM likes
             WHERE "userId" = $2 AND "postId" = $1;
     `, [postId, userId]);
 }
 
-export async function getPostByIdDB(postId){
+export async function getPostByIdDB(postId) {
     return await db.query(`SELECT * FROM posts WHERE id = $1;`, [postId]);
 }
 
-export async function getPostByUserIdDB(userId, userLikerId, query){
+export async function getPostByUserIdDB(userId, userLikerId, query) {
     const firstPostReference = query.firstPost ? query.firstPost : "Infinity";
-    const pageOffset = query.page>0 ? ((query.page)-1)*10 : 0;
+    const pageOffset = query.page > 0 ? ((query.page) - 1) * 10 : 0;
     const results = await db.query(`
         SELECT
             u.id,
@@ -120,21 +121,21 @@ export async function getPostByUserIdDB(userId, userLikerId, query){
     return results;
 }
 
-export async function deletePostById(params, userId){
+export async function deletePostById(params, userId) {
     const { postId } = params;
-    return await db.query(`DELETE FROM posts WHERE id=$1 AND "userId"=$2`,[postId,userId]);
+    return await db.query(`DELETE FROM posts WHERE id=$1 AND "userId"=$2`, [postId, userId]);
 }
 
-export async function deleteHashtagsByPostId(params){
+export async function deleteHashtagsByPostId(params) {
     const { postId } = params;
-    return await db.query(`DELETE FROM hashtags WHERE "postId"=$1`,[postId]);
+    return await db.query(`DELETE FROM hashtags WHERE "postId"=$1`, [postId]);
 }
 
-export async function updatePostById(description,postId){
-    return db.query(`UPDATE posts SET description=$1 WHERE id=$2`,[description,postId]);
+export async function updatePostById(description, postId) {
+    return db.query(`UPDATE posts SET description=$1 WHERE id=$2`, [description, postId]);
 }
 
-export async function getNewestPostsByTimestamp(body){
+export async function getNewestPostsByTimestamp(body) {
     const { lastCreatedAt } = body;
-    return db.query(`SELECT COUNT(*) FROM posts WHERE "createdAt" > $1;`,[lastCreatedAt]);
+    return db.query(`SELECT COUNT(*) FROM posts WHERE "createdAt" > $1;`, [lastCreatedAt]);
 }

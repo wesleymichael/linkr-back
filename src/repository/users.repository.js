@@ -51,7 +51,7 @@ export function followersUsers(id) {
 
 export function getUsersFollow(id, following) {
     return db.query(`
-        SELECT follow FROM followers
+        SELECT id FROM followers
         WHERE "userId" = $1
         AND "followUserId" = $2
     ;`, [id, following])

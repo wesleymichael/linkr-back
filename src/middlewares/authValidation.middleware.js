@@ -7,7 +7,7 @@ export async function authValidation(req, res, next) {
   if (!token) return res.sendStatus(401);
 
   try {
-    const user = await tokenToUser(token);
+    const user = tokenToUser(token);
     res.locals.user = user;
     next();
   } catch (error) {
