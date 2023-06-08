@@ -9,7 +9,9 @@ export async function insertPostDB(userId, url, description){
     return results;
 }
 
-export async function getPostsDB(userId){
+export async function getPostsDB(userId, query){
+    const firstPostReference = query.firstPost ? query.firstPost : "Infinity";
+    const pageOffset = query.page>0 ? ((query.page)-1)*10 : 0;
     const results = await db.query(`
         SELECT
             u.id,
@@ -32,6 +34,8 @@ export async function getPostsDB(userId){
             users u
             JOIN posts p ON u.id = p."userId"
             LEFT JOIN likes l ON p.id = l."postId"
+        WHERE
+            p.id <= $2::float
         GROUP BY
             u.id,
             u.username,
@@ -42,8 +46,9 @@ export async function getPostsDB(userId){
             p."createdAt"
         ORDER BY
             p."createdAt" DESC
-        LIMIT 20; 
-        `, [userId]);
+        OFFSET $3
+        LIMIT 10; 
+        `, [userId,firstPostReference,pageOffset]);
     return results;
 }
 
@@ -72,7 +77,9 @@ export async function getPostByIdDB(postId){
     return await db.query(`SELECT * FROM posts WHERE id = $1;`, [postId]);
 }
 
-export async function getPostByUserIdDB(userId, userLikerId){
+export async function getPostByUserIdDB(userId, userLikerId, query){
+    const firstPostReference = query.firstPost ? query.firstPost : "Infinity";
+    const pageOffset = query.page>0 ? ((query.page)-1)*10 : 0;
     const results = await db.query(`
         SELECT
             u.id,
@@ -96,7 +103,7 @@ export async function getPostByUserIdDB(userId, userLikerId){
             JOIN posts p ON u.id = p."userId"
             LEFT JOIN likes l ON p.id = l."postId"
         WHERE
-            p."userId" = $1 
+            p."userId" = $1 AND p.id <= $3::float
         GROUP BY
             u.id,
             u.username,
@@ -106,8 +113,10 @@ export async function getPostByUserIdDB(userId, userLikerId){
             p.description,
             p."createdAt"
         ORDER BY
-            p."createdAt" DESC;
-        `, [userId, userLikerId]);
+            p."createdAt" DESC
+        OFFSET $4
+        LIMIT 10;
+        `, [userId, userLikerId, firstPostReference, pageOffset]);
     return results;
 }
 
