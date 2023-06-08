@@ -2,6 +2,8 @@ import { db } from "../database/database.js";
 import { getPostByUserIdDB } from "../repository/posts.repository.js";
 import { followUsers, followersUsers, getUsersByIdDB, getUsersFollow, searchUsersByNameDB, unfollowUsers } from "../repository/users.repository.js";
 import { tokenToUser } from "../utils/tokenToUser.js";
+import { getUsersByIdDB, searchUsersByNameDB } from "../repository/users.repository.js";
+
 
 export async function searchUsers(req, res) {
 
@@ -40,8 +42,7 @@ export async function userById(req, res) {
     const { id } = req.params
 
     try {
-        const session = res.locals.session;
-        const userLiker = tokenToUser(session.token);
+        const userLiker = res.locals.user;
         const user = await getUsersByIdDB(id)
 
         if (user.rowCount === 0) {
