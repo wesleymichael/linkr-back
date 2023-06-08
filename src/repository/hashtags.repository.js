@@ -38,12 +38,14 @@ export function getPostsByHashtagDB(params, userId, query){
                 ORDER BY l."createdAt" DESC
                 LIMIT 1)
         ) AS post,
-        json_agg(h.hashtag) AS hashtags
+        json_agg(h.hashtag) AS hashtags,
+        CAST(COUNT(c.id) AS INT) AS comments
     FROM
         users u
         JOIN posts p ON u.id = p."userId"
         LEFT JOIN likes l ON p.id = l."postId"
-        LEFT JOIN hashtags h ON p.id = h."postId"        
+        LEFT JOIN hashtags h ON p.id = h."postId"
+        LEFT JOIN comments c ON p.id = c."postId"        
     WHERE 
         h.hashtag=$1 AND p.id <= $3::float
     GROUP BY

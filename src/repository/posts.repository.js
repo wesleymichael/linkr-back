@@ -29,11 +29,13 @@ export async function getPostsDB(userId, query){
                     WHERE l."postId"=p.id AND "userId" <> $1
                     ORDER BY l."createdAt" DESC
                     LIMIT 1)
-            ) AS post
+            ) AS post,
+            CAST(COUNT(c.id) AS INT) AS comments
         FROM
             users u
             JOIN posts p ON u.id = p."userId"
             LEFT JOIN likes l ON p.id = l."postId"
+            LEFT JOIN comments c ON p.id = c."postId"
         WHERE
             p.id <= $2::float
         GROUP BY
@@ -97,11 +99,13 @@ export async function getPostByUserIdDB(userId, userLikerId, query){
                     WHERE l."postId"=p.id AND "userId" <> $2
                     ORDER BY l."createdAt" DESC
                     LIMIT 1)
-            ) AS post
+            ) AS post,
+            CAST(COUNT(c.id) AS INT) AS comments
         FROM
             users u
             JOIN posts p ON u.id = p."userId"
             LEFT JOIN likes l ON p.id = l."postId"
+            LEFT JOIN comments c ON p.id = c."postId"
         WHERE
             p."userId" = $1 AND p.id <= $3::float
         GROUP BY
