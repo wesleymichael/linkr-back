@@ -6,7 +6,7 @@ import { authValidation } from "../middlewares/authValidation.middleware.js";
 
 const usersRouter = Router()
 
-usersRouter.post("/search", validationSchemas(searchSchema), searchUsers)
+usersRouter.post("/search", authValidation, validationSchemas(searchSchema), searchUsers)
 usersRouter.get("/user/:id", authValidation, userById)
 usersRouter.post("/follow", authValidation, follow)
 usersRouter.post("/unfollow", authValidation, unfollow)

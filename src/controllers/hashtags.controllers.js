@@ -12,7 +12,7 @@ export async function getTrendingTags(req,res){
 export async function getHashtagPosts(req,res){
     const user = res.locals.user;
     try {
-        const hashtagPosts = await getPostsByHashtagDB(req.params, user.id);
+        const hashtagPosts = await getPostsByHashtagDB(req.params, user.id, req.query);
         res.send(hashtagPosts.rows);
     } catch (error) {
         return res.status(500).send(error.message);

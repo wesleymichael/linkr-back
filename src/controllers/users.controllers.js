@@ -1,16 +1,12 @@
-import { db } from "../database/database.js";
 import { getPostByUserIdDB } from "../repository/posts.repository.js";
 import { followUsers, followersUsers, getUsersByIdDB, getUsersFollow, searchUsersByNameDB, unfollowUsers } from "../repository/users.repository.js";
-import { tokenToUser } from "../utils/tokenToUser.js";
-import { getUsersByIdDB, searchUsersByNameDB } from "../repository/users.repository.js";
-
 
 export async function searchUsers(req, res) {
 
-    const { name, token } = req.body
+    const { name } = req.body
 
     try {
-        const user = tokenToUser(token)
+        const user = res.locals.user;
         const users = await searchUsersByNameDB(name)
         const usersId = []
         const followers = []
@@ -52,7 +48,7 @@ export async function userById(req, res) {
         delete user.rows[0].password
         delete user.rows[0].email
 
-        const posts = await getPostByUserIdDB(id, userLiker.id)
+        const posts = await getPostByUserIdDB(id,userLiker.id, req.query)
 
         res.send({ user: user.rows[0], posts: posts.rows });
     } catch (error) {
@@ -64,8 +60,7 @@ export async function follow(req, res) {
     const { followId } = req.body
     try {
 
-        const session = res.locals.session;
-        const user = tokenToUser(session.token);
+        const user = res.locals.user;
 
         await followUsers(user.id, followId)
 
@@ -80,8 +75,7 @@ export async function unfollow(req, res) {
     const { followId } = req.body
     try {
 
-        const session = res.locals.session;
-        const user = tokenToUser(session.token);
+        const user = res.locals.user;
 
         await unfollowUsers(user.id, followId)
 
@@ -94,8 +88,7 @@ export async function unfollow(req, res) {
 export async function followers(req, res) {
     try {
 
-        const session = res.locals.session;
-        const user = tokenToUser(session.token);
+        const user = res.locals.user;
 
         const follower = await followersUsers(user.id)
 

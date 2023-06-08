@@ -16,8 +16,10 @@ export function getTopHashtagsDB(){
     `);
 }
 
-export function getPostsByHashtagDB(params, userId){
-    const {hashtag} = params
+export function getPostsByHashtagDB(params, userId, query){
+    const {hashtag} = params;
+    const firstPostReference = query.firstPost ? query.firstPost : "Infinity";
+    const pageOffset = query.page>0 ? ((query.page)-1)*10 : 0;
     return db.query(`
     SELECT
         u.id,
@@ -42,7 +44,8 @@ export function getPostsByHashtagDB(params, userId){
         JOIN posts p ON u.id = p."userId"
         LEFT JOIN likes l ON p.id = l."postId"
         LEFT JOIN hashtags h ON p.id = h."postId"        
-        WHERE h.hashtag=$1
+    WHERE 
+        h.hashtag=$1 AND p.id <= $3::float
     GROUP BY
         u.id,
         u.username,
@@ -52,7 +55,9 @@ export function getPostsByHashtagDB(params, userId){
         p.description,
         p."createdAt"
     ORDER BY
-        p."createdAt" DESC;
+        p."createdAt" DESC
+    OFFSET $4
+    LIMIT 10;
         `
-        ,[hashtag, userId]);
+        ,[hashtag, userId, firstPostReference, pageOffset]);
 }
