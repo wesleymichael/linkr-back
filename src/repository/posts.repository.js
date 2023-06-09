@@ -139,7 +139,13 @@ export async function updatePostById(description, postId) {
     return db.query(`UPDATE posts SET description=$1 WHERE id=$2`, [description, postId]);
 }
 
-export async function getNewestPostsByTimestamp(body) {
+export async function getNewestPostsByTimestamp(body, userId) {
     const { lastCreatedAt } = body;
-    return db.query(`SELECT COUNT(*) FROM posts WHERE "createdAt" > $1;`, [lastCreatedAt]);
+    return db.query(`
+    SELECT COUNT(*) FROM posts 
+	WHERE posts."createdAt" > $1 
+		AND posts."userId" = ANY(array(
+			SELECT "followUserId" FROM followers WHERE "userId"=$2
+			));`,[lastCreatedAt, userId])
+    
 }
