@@ -34,11 +34,13 @@ export async function getPostsDB(userId, query) {
         FROM
             users u
             JOIN posts p ON u.id = p."userId"
-            JOIN followers f ON f."followUserId" = u.id
             LEFT JOIN likes l ON p.id = l."postId"
             LEFT JOIN comments c ON p.id = c."postId"
         WHERE
             p.id <= $2::float
+            AND p."userId" = ANY(array(
+				SELECT "followUserId" FROM followers WHERE "userId"=$1
+				))
         GROUP BY
             u.id,
             u.username,
