@@ -30,7 +30,7 @@ export async function getPostsDB(userId, query) {
                     ORDER BY l."createdAt" DESC
                     LIMIT 1)
             ) AS post,
-            CAST(COUNT(c.id) AS INT) AS comments
+            COUNT(c.id) AS comments
         FROM
             users u
             JOIN posts p ON u.id = p."userId"
@@ -103,7 +103,7 @@ export async function getPostByUserIdDB(userId, userLikerId, query) {
                     ORDER BY l."createdAt" DESC
                     LIMIT 1)
             ) AS post,
-            CAST(COUNT(c.id) AS INT) AS comments
+            COUNT(c.id) AS comments
         FROM
             users u
             JOIN posts p ON u.id = p."userId"

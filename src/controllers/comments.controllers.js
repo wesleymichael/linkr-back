@@ -1,7 +1,7 @@
 import { getCommentsDB, insertCommentDB } from "../repository/comments.repository.js";
 import { getPostByIdDB } from "../repository/posts.repository.js";
 
-export async function getCommentsByUserId(req, res) {
+export async function getCommentsByPostId(req, res) {
 
     const { postId } = req.params
 
