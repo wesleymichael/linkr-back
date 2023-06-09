@@ -8,6 +8,7 @@ export async function searchUsers(req, res) {
     try {
         const user = res.locals.user;
         const users = await searchUsersByNameDB(name)
+        const noFollowers = []
         const followers = []
 
         for (let i = 0; i < users.rowCount; i++) {
@@ -17,10 +18,13 @@ export async function searchUsers(req, res) {
             if (follow.rows[0]) {
                 followers.push({ ...users.rows[i], follower: true })
             } else {
-                followers.push({ ...users.rows[i], follower: false })
+                noFollowers.push({ ...users.rows[i], follower: false })
             }
         }
 
+        for (let i = 0; i < noFollowers.length; i++) {
+            followers.push(noFollowers[i])
+        }
         res.send(followers);
     } catch (error) {
         res.status(500).send(error.message);
