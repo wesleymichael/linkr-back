@@ -119,8 +119,9 @@ export async function editPost(req,res){
 }
 
 export async function checkNewPosts(req,res){
+    const user = res.locals.user;
     try {
-        const postsCount = await getNewestPostsByTimestamp(req.body);
+        const postsCount = await getNewestPostsByTimestamp(req.body, user.id);
         res.send(postsCount.rows[0]);
     } catch (error) {
         return res.status(500).send(error.message);

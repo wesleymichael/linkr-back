@@ -34,11 +34,13 @@ export async function getPostsDB(userId, query) {
         FROM
             users u
             JOIN posts p ON u.id = p."userId"
-            JOIN followers f ON f."followUserId" = u.id
             LEFT JOIN likes l ON p.id = l."postId"
             LEFT JOIN comments c ON p.id = c."postId"
         WHERE
             p.id <= $2::float
+            AND p."userId" = ANY(array(
+				SELECT "followUserId" FROM followers WHERE "userId"=$1
+				))
         GROUP BY
             u.id,
             u.username,
@@ -139,7 +141,13 @@ export async function updatePostById(description, postId) {
     return db.query(`UPDATE posts SET description=$1 WHERE id=$2`, [description, postId]);
 }
 
-export async function getNewestPostsByTimestamp(body) {
+export async function getNewestPostsByTimestamp(body, userId) {
     const { lastCreatedAt } = body;
-    return db.query(`SELECT COUNT(*) FROM posts WHERE "createdAt" > $1;`, [lastCreatedAt]);
+    return db.query(`
+    SELECT COUNT(*) FROM posts 
+	WHERE posts."createdAt" > $1 
+		AND posts."userId" = ANY(array(
+			SELECT "followUserId" FROM followers WHERE "userId"=$2
+			));`,[lastCreatedAt, userId])
+    
 }
