@@ -4,6 +4,7 @@ import { getPostByIdDB } from "../repository/posts.repository.js";
 export async function getCommentsByPostId(req, res) {
 
     const { postId } = req.params
+    const user = res.locals.user
 
     try {
 
@@ -13,7 +14,7 @@ export async function getCommentsByPostId(req, res) {
             return res.sendStatus(404)
         }
 
-        const comments = await getCommentsDB(postId)
+        const comments = await getCommentsDB(postId,user.id)
 
         res.send(comments.rows)
 
