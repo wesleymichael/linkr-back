@@ -13,48 +13,101 @@ export async function getPostsDB(userId, query) {
     const firstPostReference = query.firstPost ? query.firstPost : "Infinity";
     const pageOffset = query.page > 0 ? ((query.page) - 1) * 10 : 0;
     const results = await db.query(`
-        SELECT
-            u.id,
-            u.username,
-            u.image,
-            json_build_object(
-                'id', p.id,
-                'url', p.url,
-                'description', p.description,
-                'createdAt', p."createdAt",
-                'likes', COUNT(l.id),
-                'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = $1),
-                'diffUser',(SELECT u.username FROM likes l
-                    JOIN users u ON u.id=l."userId"
-                    WHERE l."postId"=p.id AND "userId" <> $1
-                    ORDER BY l."createdAt" DESC
-                    LIMIT 1)
-            ) AS post,
-            COUNT(c.id) AS comments
-        FROM
-            users u
-            JOIN posts p ON u.id = p."userId"
-            LEFT JOIN likes l ON p.id = l."postId"
-            LEFT JOIN comments c ON p.id = c."postId"
-        WHERE
-            p.id <= $2::float
-            AND p."userId" = ANY(array(
-				SELECT "followUserId" FROM followers WHERE "userId"=$1
-				))
-            OR p."userId"=$1
-        GROUP BY
-            u.id,
-            u.username,
-            u.image,
-            p.id,
-            p.url,
-            p.description,
-            p."createdAt"
-        ORDER BY
-            p."createdAt" DESC
-        OFFSET $3
-        LIMIT 10; 
-        `, [userId, firstPostReference, pageOffset]);
+    SELECT
+    u.id,
+    u.username,
+    u.image,
+    json_build_object(
+        'id', p.id,
+        'url', p.url,
+        'description', p.description,
+        'createdAt', p."createdAt",
+        'likes', COUNT(l.id),
+        'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = p.id AND "userId" = $3),
+        'diffUser', (SELECT u.username FROM likes l
+                     JOIN users u ON u.id = l."userId"
+                     WHERE l."postId" = p.id AND "userId" <> $3
+                     ORDER BY l."createdAt" DESC
+                     LIMIT 1),
+		'reposts', (
+           			 SELECT COUNT(*) FROM reposts WHERE "postId" = p.id
+      		  )
+    ) AS post,
+    COUNT(c.id) AS comments,
+    NULL AS "reposterUser",
+	p."createdAt" AS "createdAt"
+FROM
+    users u
+    JOIN posts p ON u.id = p."userId"
+    LEFT JOIN likes l ON p.id = l."postId"
+    LEFT JOIN comments c ON p.id = c."postId"
+WHERE
+    p.id <= $1::float
+    AND
+   ( p."userId" = ANY(
+        ARRAY(SELECT "followUserId" FROM followers WHERE "userId" = $3)
+    )
+	OR p."userId"=$3)
+GROUP BY
+    u.id,
+    u.username,
+    u.image,
+    p.id,
+    p.url,
+    p.description,
+    p."createdAt"
+
+UNION ALL
+
+SELECT
+    u.id,
+    u.username,
+    u.image,
+    json_build_object(
+        'id', rp.id,
+        'url', rp.url,
+        'description', rp.description,
+        'createdAt', rp."createdAt",
+        'likes', COUNT(rl.id),
+        'liked', EXISTS(SELECT 1 FROM likes WHERE "postId" = rp.id AND "userId" = $3),
+        'diffUser', (SELECT u.username FROM likes rl
+                     JOIN users u ON u.id = rl."userId"
+                     WHERE rl."postId" = rp.id AND "userId" <> $3
+                     ORDER BY rl."createdAt" DESC
+                     LIMIT 1),
+		'reposts', (
+           			 SELECT COUNT(*) FROM reposts WHERE "postId" = rp.id
+      		  )
+    ) AS post,
+    COUNT(rc.id) AS comments,
+	(SELECT username FROM users WHERE users.id=r."userId") AS "reposterUser",
+	r."createdAt" AS "createdAt"
+FROM
+    users u	
+	JOIN posts rp ON u.id = rp."userId"
+	JOIN reposts r ON r."postId" = rp.id	
+    LEFT JOIN likes rl ON rp.id = rl."postId"
+    LEFT JOIN comments rc ON rp.id = rc."postId"
+WHERE
+    rp.id <= $1::float
+    AND
+    (r."userId" = ANY(
+        ARRAY(SELECT "followUserId" FROM followers WHERE "userId" = $3)
+    )
+	OR r."userId"=$3)
+GROUP BY
+    u.id,
+    u.username,
+    u.image,
+    rp.id,
+    rp.url,
+    rp.description,
+    rp."createdAt",
+    r."userId",
+	r."createdAt"
+ORDER BY "createdAt" DESC
+OFFSET $2
+LIMIT 10;`, [firstPostReference, pageOffset, userId]);
     return results;
 }
 
@@ -149,6 +202,7 @@ export async function getNewestPostsByTimestamp(body, userId) {
 	WHERE posts."createdAt" > $1 
 		AND posts."userId" = ANY(array(
 			SELECT "followUserId" FROM followers WHERE "userId"=$2
-			));`,[lastCreatedAt, userId])
+			))
+            OR posts."userId" = $2;`,[lastCreatedAt, userId])
     
 }
