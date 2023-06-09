@@ -477,38 +477,6 @@ ALTER SEQUENCE public.posts_id_seq OWNED BY public.posts.id;
 
 
 --
--- Name: sessions; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.sessions (
-    id integer NOT NULL,
-    token text NOT NULL,
-    "userId" integer,
-    "createdAt" timestamp without time zone DEFAULT now()
-);
-
-
---
--- Name: sessions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.sessions_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: sessions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.sessions_id_seq OWNED BY public.sessions.id;
-
-
---
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -575,13 +543,6 @@ ALTER TABLE ONLY public.likes ALTER COLUMN id SET DEFAULT nextval('public.likes_
 --
 
 ALTER TABLE ONLY public.posts ALTER COLUMN id SET DEFAULT nextval('public.posts_id_seq'::regclass);
-
-
---
--- Name: sessions id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sessions ALTER COLUMN id SET DEFAULT nextval('public.sessions_id_seq'::regclass);
 
 
 --
@@ -725,18 +686,6 @@ INSERT INTO public.posts VALUES (41, 1, 'https://github.com/', 'Melhor site para
 
 
 --
--- Data for Name: sessions; Type: TABLE DATA; Schema: public; Owner: -
---
-
-INSERT INTO public.sessions VALUES (1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJpdmFuIiwiZW1haWwiOiJpdmFuQGl2YW4uY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkTDlsemNYVjdSWHJIRVlUOXczNFRjdVVsYzdDSTg2cy96NWJoTkFHcmZVSGtrMU1iSlJISkMiLCJpbWFnZSI6Imh0dHBzOi8vZGltZW5zYW9zZXRlLmNvbS5ici9zdGF0aWMvYzcyNWUxOWIzZWJiZmY4MjM2MDM1ZWUxNmU2ZTFmYzQvOGE2ODEvbHVmZnktdHJhbnNmb3JtYWNvZXMud2VicCIsImNyZWF0ZWRBdCI6IjIwMjMtMDYtMDJUMDA6MjY6MzguMDM5WiIsImlhdCI6MTY4NjE3ODY4N30.uTQX9PgAWwBdPppJxaso84EOeaKxmuhUX2gQjpypcWM', NULL, '2023-06-07 22:57:58.778899');
-INSERT INTO public.sessions VALUES (2, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJpdmFuIiwiZW1haWwiOiJpdmFuQGl2YW4uY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkTDlsemNYVjdSWHJIRVlUOXczNFRjdVVsYzdDSTg2cy96NWJoTkFHcmZVSGtrMU1iSlJISkMiLCJpbWFnZSI6Imh0dHBzOi8vZGltZW5zYW9zZXRlLmNvbS5ici9zdGF0aWMvYzcyNWUxOWIzZWJiZmY4MjM2MDM1ZWUxNmU2ZTFmYzQvOGE2ODEvbHVmZnktdHJhbnNmb3JtYWNvZXMud2VicCIsImNyZWF0ZWRBdCI6IjIwMjMtMDYtMDJUMDA6MjY6MzguMDM5WiIsImlhdCI6MTY4NjE3ODcyNH0.QCZHD6--8BraKWH2CftCknVV4_Vi5ByW_tckGxAZxbQ', NULL, '2023-06-07 22:58:35.596749');
-INSERT INTO public.sessions VALUES (3, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJpdmFuIiwiZW1haWwiOiJpdmFuQGl2YW4uY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkTDlsemNYVjdSWHJIRVlUOXczNFRjdVVsYzdDSTg2cy96NWJoTkFHcmZVSGtrMU1iSlJISkMiLCJpbWFnZSI6Imh0dHBzOi8vZGltZW5zYW9zZXRlLmNvbS5ici9zdGF0aWMvYzcyNWUxOWIzZWJiZmY4MjM2MDM1ZWUxNmU2ZTFmYzQvOGE2ODEvbHVmZnktdHJhbnNmb3JtYWNvZXMud2VicCIsImNyZWF0ZWRBdCI6IjIwMjMtMDYtMDJUMDA6MjY6MzguMDM5WiIsImlhdCI6MTY4NjE4MTIxOX0.xWeDRFZTDRGSuj2R7mE3jhGFUmEbPu9NxI2C2qG4lW4', NULL, '2023-06-07 23:40:10.769271');
-INSERT INTO public.sessions VALUES (4, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJpdmFuIiwiZW1haWwiOiJpdmFuQGl2YW4uY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkTDlsemNYVjdSWHJIRVlUOXczNFRjdVVsYzdDSTg2cy96NWJoTkFHcmZVSGtrMU1iSlJISkMiLCJpbWFnZSI6Imh0dHBzOi8vZGltZW5zYW9zZXRlLmNvbS5ici9zdGF0aWMvYzcyNWUxOWIzZWJiZmY4MjM2MDM1ZWUxNmU2ZTFmYzQvOGE2ODEvbHVmZnktdHJhbnNmb3JtYWNvZXMud2VicCIsImNyZWF0ZWRBdCI6IjIwMjMtMDYtMDJUMDA6MjY6MzguMDM5WiIsImlhdCI6MTY4NjE4MTMwMH0.mfhJO4Qv9UcWxbX_zfsvl8wf1OTz9PSue_sxbBT2wlg', NULL, '2023-06-07 23:41:31.345792');
-INSERT INTO public.sessions VALUES (5, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJpdmFuIiwiZW1haWwiOiJpdmFuQGl2YW4uY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkTDlsemNYVjdSWHJIRVlUOXczNFRjdVVsYzdDSTg2cy96NWJoTkFHcmZVSGtrMU1iSlJISkMiLCJpbWFnZSI6Imh0dHBzOi8vZGltZW5zYW9zZXRlLmNvbS5ici9zdGF0aWMvYzcyNWUxOWIzZWJiZmY4MjM2MDM1ZWUxNmU2ZTFmYzQvOGE2ODEvbHVmZnktdHJhbnNmb3JtYWNvZXMud2VicCIsImNyZWF0ZWRBdCI6IjIwMjMtMDYtMDJUMDA6MjY6MzguMDM5WiIsImlhdCI6MTY4NjE4MjQ4NX0.e1TQAXlHdnf-xUiTLPHygGIjQYmAn8AUMhNwUniwe5Q', NULL, '2023-06-08 00:01:16.696116');
-INSERT INTO public.sessions VALUES (6, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlcm5hbWUiOiJpdmFuIiwiZW1haWwiOiJpdmFuQGl2YW4uY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkTDlsemNYVjdSWHJIRVlUOXczNFRjdVVsYzdDSTg2cy96NWJoTkFHcmZVSGtrMU1iSlJISkMiLCJpbWFnZSI6Imh0dHBzOi8vZGltZW5zYW9zZXRlLmNvbS5ici9zdGF0aWMvYzcyNWUxOWIzZWJiZmY4MjM2MDM1ZWUxNmU2ZTFmYzQvOGE2ODEvbHVmZnktdHJhbnNmb3JtYWNvZXMud2VicCIsImNyZWF0ZWRBdCI6IjIwMjMtMDYtMDJUMDA6MjY6MzguMDM5WiIsImlhdCI6MTY4NjE4NTU3Mn0.G-cQOaZQj5-mFJGeb6Gb2cVpjv3ISI0jrmTfYcYJC7s', NULL, '2023-06-08 00:52:43.747845');
-
-
---
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -798,13 +747,6 @@ SELECT pg_catalog.setval('public.posts_id_seq', 41, true);
 
 
 --
--- Name: sessions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.sessions_id_seq', 6, true);
-
-
---
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -849,22 +791,6 @@ ALTER TABLE ONLY public.likes
 
 ALTER TABLE ONLY public.posts
     ADD CONSTRAINT posts_pk PRIMARY KEY (id);
-
-
---
--- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sessions
-    ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
-
-
---
--- Name: sessions sessions_token_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sessions
-    ADD CONSTRAINT sessions_token_key UNIQUE (token);
 
 
 --
@@ -945,14 +871,6 @@ ALTER TABLE ONLY public.likes
 
 ALTER TABLE ONLY public.posts
     ADD CONSTRAINT posts_fk0 FOREIGN KEY ("userId") REFERENCES public.users(id);
-
-
---
--- Name: sessions sessions_userId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sessions
-    ADD CONSTRAINT "sessions_userId_fkey" FOREIGN KEY ("userId") REFERENCES public.users(id);
 
 
 --
