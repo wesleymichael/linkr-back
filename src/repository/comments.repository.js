@@ -6,8 +6,23 @@ export async function insertCommentDB(userId, postId, comment) {
     )
 }
 
-export async function getCommentsDB(postId){
+export async function getCommentsDB(postId) {
     return await db.query(
-        `SELECT * FROM comments WHERE "postId"=$1`,[postId]
+        `SELECT
+            c.id,
+            c.comment,
+            u.username,
+            u.image
+        FROM
+            comments c
+            JOIN users u ON u.id = c."userId"
+        WHERE
+            c."postId"=$1
+        GROUP BY
+            c.id,
+            c.comment,
+            u.username,
+            u.image
+        `, [postId]
     )
 }
