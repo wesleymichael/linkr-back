@@ -41,6 +41,7 @@ export async function getPostsDB(userId, query) {
             AND p."userId" = ANY(array(
 				SELECT "followUserId" FROM followers WHERE "userId"=$1
 				))
+            OR p."userId"=$1
         GROUP BY
             u.id,
             u.username,
